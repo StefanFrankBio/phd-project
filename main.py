@@ -1,6 +1,7 @@
 import itertools
 from Bio import SeqIO, Align
 
+
 def read_reference(filepath):
     with open(filepath) as handle:
         for record in SeqIO.parse(handle, "fasta"):
@@ -47,10 +48,36 @@ def count_synonymous_sites(bool_list):
 def align_pair(reference, mutated):
     aligner = Align.PairwiseAligner()
     aligner.mode = "global"
-    aligner.open_gap_score = -1
+    aligner.open_gap_score = -5
     alignment = aligner.align(reference, mutated)
     alignment = str(alignment[0])[:-1].split("\n")
     return alignment
+
+
+def find_substitutions(alignment):
+    return [(i, sub[1]) for i, sub in enumerate(zip(alignment[1], alignment[2])) if sub[0] == "."]
+
+
+def classify_substitutions(substitutions, codons, trans_table):
+    classification = []
+    for position, nucleotide in substitutions:
+        codon_idx = position // 3
+        original_codon = codons[codon_idx]
+        position_in_codon = position % 3
+        substituted_codon = original_codon[:position_in_codon] + nucleotide + original_codon[position_in_codon+1:]
+        classification.append(trans_table[original_codon] == trans_table[substituted_codon])
+    return classification   
+
+
+def dNdS(synonymity, synonymous_sites):
+    syn_site_count = sum(synonymous_sites)
+    nonsyn_site_count = len(synonymous_sites) - syn_site_count
+    syn_subs = sum(synonymity)
+    nonsyn_subs = len(synonymity) - syn_subs
+    if syn_subs == 0:
+        return "div by 0"
+    else:
+        return (nonsyn_subs/nonsyn_site_count)/(syn_subs/syn_site_count)
 
 
 def main():
@@ -65,8 +92,11 @@ def main():
         synonymous_sites += count_synonymous_sites(is_syn)
 
     mutated_sequences = read_mutated_sequences("simulated_mutations.fasta")
-    for seq in mutated_sequences[:1]:
+    for seq in mutated_sequences:
         alignment = align_pair(reference, seq)
+        substitutions = find_substitutions(alignment)
+        synonymity = classify_substitutions(substitutions, codons, trans_table)
+        dNdS_ratio = dNdS(synonymity, synonymous_sites)
 
 
 if __name__ == "__main__":
