@@ -1,2 +1,3 @@
 # Ignore everything in input directory
-input/*
+__pycache__
+input/sars-cov-2/

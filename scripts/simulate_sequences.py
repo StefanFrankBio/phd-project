@@ -21,10 +21,10 @@ def mutate_sequence(sequence):
 def main():
     reference = generate_reference()
     mutation = reference
-    with open("simulated_reference.fasta", "w") as output:
+    with open("input/tests/simulated_reference.fasta", "w") as output:
         print(">simulated_reference", file=output)
         print(reference, file=output)
-    with open("simulated_mutations.fasta", "w") as output:
+    with open("input/tests/simulated_mutations.fasta", "w") as output:
         for i in range(100):
             mutation = mutate_sequence(mutation)
             print(f">simulated_mutation_{i}", file=output)

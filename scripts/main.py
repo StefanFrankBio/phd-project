@@ -83,7 +83,7 @@ def dNdS(synonymity, synonymous_sites):
 def main():
     trans_table = build_trans_table()
     synonymous_sites = []
-    reference = read_reference("simulated_reference.fasta")
+    reference = read_reference("input/tests/simulated_reference.fasta")
     codons = split_codons(reference)
     for codon in codons:
         sns = single_substitutions(codon)
@@ -91,7 +91,7 @@ def main():
         is_syn = [amino == trans_table[codon] for amino in translations]
         synonymous_sites += count_synonymous_sites(is_syn)
 
-    mutated_sequences = read_mutated_sequences("simulated_mutations.fasta")
+    mutated_sequences = read_mutated_sequences("input/tests/simulated_mutations.fasta")
     for seq in mutated_sequences:
         alignment = align_pair(reference, seq)
         substitutions = find_substitutions(alignment)
